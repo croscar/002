@@ -1,12 +1,25 @@
 <template>
 <div>
  <Row>
-
         <i-col span="4">
-            <Tree :data="myData" @on-select-change="onTree"></Tree>
+            <Tree :data="treeDataDw" @on-select-change="onTree"></Tree>
         </i-col>
+
         <i-col span="20">
-                <i-table border stripe  :highlight-row="true" :columns="cols" :data="tableData" ></i-table>
+
+        <Tabs value="name1">
+            <TabPane label="项目" name="name1">
+                <i-table border stripe  :highlight-row="true" :columns="cols" :data="tbDataXm" ></i-table>
+            </TabPane>
+            <TabPane label="人员" name="name2">
+                <i-table border stripe  :highlight-row="true" :columns="cols2" :data="tbDataRy" ></i-table>
+            </TabPane>
+            <TabPane label="资产" name="name3">
+                <i-table border stripe  :highlight-row="true" :columns="cols3" :data="tbDataZc" ></i-table>
+            </TabPane>
+        </Tabs>
+
+
         </i-col>
     </Row>
 
@@ -16,7 +29,9 @@
 
 // const db = require('../db.js');
 import {Dw,Xm,X_Dw_Xm,Zxj_Xmgx} from '../db.js'
-   const Sequelize = require("sequelize");
+import {Ry,Ry_Xq,Zrj_MZ,Zrj_XB,Zrk_HYZK,Zrk_XL,Zrk_XW,Zrk_ZC,Zrk_ZZMM} from '../db.js'
+
+const Sequelize = require("sequelize");
 
 import { EADDRNOTAVAIL } from 'constants';
 
@@ -29,50 +44,75 @@ function isContains(str, substr) {
     mounted() {
       this.loadTree()      
 
-      this.loadTables("1")      
+      this.loadAllXm("1")      
 
     },
    data () {
       return {
-        myData:[],
-        tableData:[],
+        treeDataDw:[],
+        tbDataXm:[],
+        tbDataRy:[],
+        tbDataZc:[],
         allDw:[],
         cols:[{
+          title: '单位',
+          key: 'DW',
+          width:120,
+          sortable: true
+          },{
+          title: '项目关系',
+          key: 'XMGX',
+          width:120,
+          },{
+          title: '编号',
+          key: 'BH',
+          width:120,
+          sortable: true
+          },{
+          title: '项目名称',
+          key: 'MC',
+          width:260,
+          sortable: true
+          },{
+          title: '项目类型',
+          key: 'LX',
+          width:120,
+          sortable: true
+          },{
+          title: '领域',
+          key: 'LY',
+          width:160,
+          sortable: true
+          },{
+          title: '经费',
+          key: 'JF',
+          width:120,
+          sortable: true
+          }
+        ],
+        cols2:[{
+          title: 'XM',
+          key: 'XM',
+          width:120,
+          sortable: true
+          },{
+          title: 'SFZH',
+          key: 'SFZH',
+          width:120,
+          sortable: true
+        }],
+        cols3:[{
           title: 'CCM',
           key: 'CCM',
           width:120,
           sortable: true
           },{
-          title: 'XMGX',
-          key: 'XMGX',
-          width:120,
-          },{
-          title: 'BH',
-          key: 'BH',
+          title: 'CCM',
+          key: 'CCM',
           width:120,
           sortable: true
-          },{
-          title: 'MC',
-          key: 'MC',
-          width:260,
-          sortable: true
-          },{
-          title: 'LX',
-          key: 'LX',
-          width:120,
-          sortable: true
-          },{
-          title: 'LY',
-          key: 'LY',
-          width:160,
-          sortable: true
-          },{
-          title: 'JF',
-          key: 'JF',
-          width:120,
-          sortable: true
-          }
-        ]
+        }],
+
             }
         },
 
@@ -82,15 +122,16 @@ function isContains(str, substr) {
       },
       onTree(item)
       {
-        this.loadTables(item[0].CCM)
+        this.loadAllXm(item[0].CCM)
+        this.loadRy()
       },
       loadTree()
       {
         var _self = this; 
           var root=[];
           var newdata=[]
-          this.myData.push({title:"root",CCM:"",id:"",children:[]})
-          var curdata=this.myData[0]
+          this.treeDataDw.push({title:"root",CCM:"",id:"",expand: true,children:[]})
+          var curdata=this.treeDataDw[0]
           var datatree=[]
           datatree.push(curdata)
 
@@ -103,41 +144,29 @@ function isContains(str, substr) {
               }
               datatree.push(curdata)
       
-              curdata.children.push({title:aaa[i].MC,CCM:aaa[i].CCM,ID:aaa[i].id,children:[]})
+              curdata.children.push({title:aaa[i].MC,CCM:aaa[i].CCM,ID:aaa[i].id,expand: true,children:[]})
               curdata=curdata.children[curdata.children.length-1]
               datatree.push(curdata)
             }
           })
       },
-      loadTables(root)
+      loadAllXm(root)
       {
         var _self = this; 
-        _self.tableData.splice(0,_self.tableData.length)
+        _self.tbDataXm.splice(0,_self.tbDataXm.length)
         console.log("========111",root,_self.allDw)
-        for(var i=0;i<_self.allDw.length;i++)
-        {
-
+        for(var i=0;i<_self.allDw.length;i++){
           console.log("==========11",root,_self.allDw[i].CCM)
           if(isContains(_self.allDw[i].CCM,root))
           {
             console.log("==============",root,_self.allDw[i].CCM)
-            this.loadTable(_self.allDw[i].CCM)
+            this.loadXm(_self.allDw[i].CCM)
           }
         }
- 
       },
-      loadTable(ccm)
+      loadXm(ccm)
       {
           var _self = this; 
-      //     Xm.sync({force: false}).then(()=>{return Xm.findAll()}).then(aaa => {
-      //  //     console.log("----------a",aaa)
-      //       for(var j=0;j<aaa.length;j++)
-      //       {
-      //     //      _self.tableData.push(aaa[j].dataValues)
-      //       }
-      //    //               console.log("----------a",_self.tableData)
-      //     })
-
           X_Dw_Xm.sync({force: false}).then(()=>{return X_Dw_Xm.findAll(
             {
                 where: {
@@ -159,17 +188,51 @@ function isContains(str, substr) {
                 ]
             }
           )}).then(aaa => {
-            console.log("----------aaa",aaa)
+           // console.log("----------xm",aaa)
             for(var j=0;j<aaa.length;j++)
              {
               var a=aaa[j].dataValues
               var b=aaa[j].xm.dataValues
               var c=aaa[j].dw.dataValues
               var d=aaa[j].Zxj_Xmgx.dataValues
-              _self.tableData.push({BH:a.XMBH,MC:b.MC,LX:b.LX,LY:b.LY,JF:b.JF,CCM:c.MC,XMGX:d.XMGX})
+              _self.tbDataXm.push({BH:a.XMBH,MC:b.MC,LX:b.LX,LY:b.LY,JF:b.JF,DW:c.MC,XMGX:d.XMGX})
              }
           })
-      }
+      },
+      loadRy(ccm){
+          var _self = this;   
+          Ry.sync({force: false}).then(()=>{return Ry.findAll(
+            {
+                where: {
+                },
+                include: [
+                // {
+                //     model: Zrj_XB,
+                //     where: { DM: Sequelize.col('Ry.XB') }
+                // },
+                // {
+                //     model: Zrj_MZ,
+                //     where: { DM: Sequelize.col('Ry.MZ') }
+                // },
+                {
+                    model: Ry_Xq,
+                    where: { SFZH: Sequelize.col('Ry.SFZH') }
+                }
+                ]
+            }
+          )}).then(aaa => {
+            console.log("----------ry",aaa)
+            for(var j=0;j<aaa.length;j++)
+             {
+              var a=aaa[j].dataValues
+              _self.tbDataRy.push(a)
+              // var b=aaa[j].xm.dataValues
+              // var c=aaa[j].dw.dataValues
+              // var d=aaa[j].Zxj_Xmgx.dataValues
+              // _self.tbDataXm.push({BH:a.XMBH,MC:b.MC,LX:b.LX,LY:b.LY,JF:b.JF,DW:c.MC,XMGX:d.XMGX})
+             }
+          })
+      },
     }
   }
 </script>

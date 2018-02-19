@@ -140,12 +140,255 @@ X_Dw_Xm.belongsTo(Xm,{foreignKey: 'XMBH', targetKey: 'BH'})
 X_Dw_Xm.belongsTo(Dw,{foreignKey: 'DCCM', targetKey: 'CCM'})
 X_Dw_Xm.belongsTo(Zxj_Xmgx,{foreignKey: 'XMGX', targetKey: 'DM'})
 
-//X_Dw_Xm.hasOne(Dw,{as:"dw", foreignKey: 'CCM' })
+
+
+const Ry = mysql_db.define('Ry', {
+    SFZH: {
+        type: Sequelize.STRING(36),
+        field: 'SFZH',
+        primaryKey: true
+    },
+    XM: {
+        type: Sequelize.STRING(36),
+        field: 'XM',
+    },
+    XB: {
+        type: Sequelize.INTEGER,
+        field: 'XB',
+    },
+    CSNY: {
+        type: Sequelize.STRING(36),
+        field: 'CSNY',
+    },
+    JG: {
+        type: Sequelize.STRING(36),
+        field: 'JG',
+    },
+    MZ: {
+        type: Sequelize.STRING(36),
+        field: 'MZ',
+    },
+    ZP: {
+        type: Sequelize.STRING(36),
+        field: 'ZP',
+    },
+    BZ: {
+        type: Sequelize.STRING(36),
+        field: 'BZ',
+    },
+}, {
+    timestamps: false,
+    freezeTableName: false, // Model tableName will be the same as the model name
+    tableName: 't_Ry'
+});
+
+const Ry_Xq = mysql_db.define('Ry', {
+    SFZH: {
+        type: Sequelize.STRING(36),
+        field: 'SFZH',
+        primaryKey: true
+    },
+    HXZK: {
+        type: Sequelize.STRING(36),
+        field: 'HXZK',
+    },
+    ZZMM: {
+        type: Sequelize.STRING(36),
+        field: 'ZZMM',
+    },
+    ZC: {
+        type: Sequelize.STRING(36),
+        field: 'SFZH',
+    },
+    XL: {
+        type: Sequelize.STRING(36),
+        field: 'XL',
+    },
+    XW: {
+        type: Sequelize.STRING(36),
+        field: 'XW',
+    },
+    JTCY: {
+        type: Sequelize.STRING(36),
+        field: 'JTCY',
+    },
+    LXFS: {
+        type: Sequelize.STRING(36),
+        field: 'LXFS',
+    },
+    JTZZ: {
+        type: Sequelize.STRING(36),
+        field: 'JTZZ',
+    },
+    SJYJL: {
+        type: Sequelize.STRING(36),
+        field: 'SJYJL',
+    },
+    JCQK: {
+        type: Sequelize.STRING(36),
+        field: 'JCQK',
+    },
+    XQAH: {
+        type: Sequelize.STRING(36),
+        field: 'XQAH',
+    },
+    ZYCG: {
+        type: Sequelize.STRING(36),
+        field: 'ZYCG',
+    },
+    BZ: {
+        type: Sequelize.STRING(36),
+        field: 'BZ',
+    },
+
+}, {
+    timestamps: false,
+    freezeTableName: false, // Model tableName will be the same as the model name
+    tableName: 'T_Ry_xq'
+});
+
+const Zrj_MZ = mysql_db.define('Zrj_MZ', {
+    DM: {
+        type: Sequelize.STRING(36),
+        field: 'DM',
+        primaryKey: true
+    },
+    MZ: {
+        type: Sequelize.STRING(36),
+        field: 'MZ',
+    },
+}, {
+    timestamps: false,
+    freezeTableName: false, // Model tableName will be the same as the model name
+    tableName: 'Zrj_MZ'
+});
+
+const Zrj_XB = mysql_db.define('Zrj_XB', {
+    DM: {
+        type: Sequelize.STRING(36),
+        field: 'DM',
+        primaryKey: true
+    },
+    HYZK: {
+        type: Sequelize.STRING(36),
+        field: 'XB',
+    },
+}, {
+    timestamps: false,
+    freezeTableName: false, // Model tableName will be the same as the model name
+    tableName: 'Zrj_XB'
+}); 
+
+const Zrk_HYZK = mysql_db.define('Zrk_HYZK', {
+    DM: {
+        type: Sequelize.STRING(36),
+        field: 'DM',
+        primaryKey: true
+    },
+    HYZK: {
+        type: Sequelize.STRING(36),
+        field: 'HYZK',
+    },
+}, {
+    timestamps: false,
+    freezeTableName: false, // Model tableName will be the same as the model name
+    tableName: 'Zrk_HYZK'
+});
+
+const Zrk_XL = mysql_db.define('Zrk_XL', {
+    DM: {
+        type: Sequelize.STRING(36),
+        field: 'DM',
+        primaryKey: true
+    },
+    XL: {
+        type: Sequelize.STRING(36),
+        field: 'XL',
+    },
+}, {
+    timestamps: false,
+    freezeTableName: false, // Model tableName will be the same as the model name
+    tableName: 'Zrk_XL'
+});
+
+const Zrk_XW = mysql_db.define('Zrk_XW', {
+    DM: {
+        type: Sequelize.STRING(36),
+        field: 'DM',
+        primaryKey: true
+    },
+    XW: {
+        type: Sequelize.STRING(36),
+        field: 'XW',
+    },
+}, {
+    timestamps: false,
+    freezeTableName: false, // Model tableName will be the same as the model name
+    tableName: 'Zrk_XW'
+});
+
+const Zrk_ZC = mysql_db.define('Zrk_ZC', {
+    DM: {
+        type: Sequelize.STRING(36),
+        field: 'DM',
+        primaryKey: true
+    },
+    ZC: {
+        type: Sequelize.STRING(36),
+        field: 'ZC',
+    },
+}, {
+    timestamps: false,
+    freezeTableName: false, // Model tableName will be the same as the model name
+    tableName: 'Zrk_ZC'
+});
+
+const Zrk_ZZMM = mysql_db.define('Zrk_ZZMM', {
+    DM: {
+        type: Sequelize.STRING(36),
+        field: 'DM',
+        primaryKey: true
+    },
+    ZZMM: {
+        type: Sequelize.STRING(36),
+        field: 'ZZMM',
+    },
+}, {
+    timestamps: false,
+    freezeTableName: false, // Model tableName will be the same as the model name
+    tableName: 'Zrk_ZZMM'
+});
+
+Ry.belongsTo(Zrj_XB,{foreignKey: 'XB', targetKey: 'DM'})
+Ry.belongsTo(Zrj_MZ,{foreignKey: 'MZ', targetKey: 'DM'})
+//Ry.belongsTo(Zrj_JG,{foreignKey: 'JG', targetKey: 'DM'})
+
+Ry.belongsTo(Ry_Xq,{foreignKey: 'SFZH', targetKey: 'SFZH'})
+//Ry_Xq.belongsTo(Ry,{foreignKey: 'SFZH', targetKey: 'SFZH'})
+
+Ry_Xq.belongsTo(Zrk_XL,{foreignKey: 'XL', targetKey: 'DM'})
+Ry_Xq.belongsTo(Zrk_XW,{foreignKey: 'XW', targetKey: 'DM'})
+Ry_Xq.belongsTo(Zrk_ZC,{foreignKey: 'ZC', targetKey: 'DM'})
+Ry_Xq.belongsTo(Zrk_ZZMM,{foreignKey: 'ZZMM', targetKey: 'DM'})
+Ry_Xq.belongsTo(Zrk_HYZK,{foreignKey: 'HYZK', targetKey: 'DM'})
+
 
 exports.Dw=Dw  
 exports.Xm=Xm
 exports.X_Dw_Xm=X_Dw_Xm
 exports.Zxj_Xmgx=Zxj_Xmgx
+
+exports.Ry=Ry
+exports.Ry_Xq=Ry_Xq
+exports.Zrj_MZ=Zrj_MZ
+exports.Zrj_XB=Zrj_XB
+exports.Zrk_HYZK=Zrk_HYZK
+exports.Zrk_XL=Zrk_XL
+exports.Zrk_XW=Zrk_XW
+exports.Zrk_ZC=Zrk_ZC
+exports.Zrk_ZZMM=Zrk_ZZMM
+
+
 
 // Dw.sync({force: false}).then(() => {
 //   }).then(()=>Dw.findAll().then(aaa => {
