@@ -9,27 +9,44 @@
 
         <Tabs value="name1">
             <TabPane label="项目" name="name1">
-                <i-table border stripe  :highlight-row="true" :columns="cols" :data="tbDataXm" ></i-table>
+                <i-table v-if="showa" border stripe  :highlight-row="true" :columns="cols" :data="tbDataXm" ></i-table>
             </TabPane>
             <TabPane label="人员" name="name2">
-                <i-table border stripe  :highlight-row="true" :columns="cols2" :data="tbDataRy" ></i-table>
+                <i-table  v-if="showb" border stripe  :highlight-row="true" :columns="cols2" :data="tbDataRy" ></i-table>
             </TabPane>
             <TabPane label="资产" name="name3">
-                <i-table border stripe  :highlight-row="true" :columns="cols3" :data="tbDataZc" ></i-table>
+                <i-table v-if="showb"  border stripe  :highlight-row="true" :columns="cols3" :data="tbDataZc" ></i-table>
+            </TabPane>
+            <TabPane label="图表" name="name4">
+
+              <chart :style="{width:'300px',heigh:'300px'}" :options="option1"></chart>
+                    <DlgXmEdit></DlgXmEdit>
             </TabPane>
         </Tabs>
-
 
         </i-col>
     </Row>
 
+
 </div>
 </template>
+
 <script>
+import DlgXmEdit from './Dialogs/DlgXmEdit'
+
+import Vue from 'vue'
+import ECharts from 'vue-echarts/components/ECharts'
+//require('echarts/lib/chart/line')
+import 'echarts/lib/chart/line'
+import 'echarts/lib/chart/bar'
+import 'echarts/lib/component/tooltip'
+
+Vue.component('chart', ECharts)
+
 
 // const db = require('../db.js');
 import {Dw,Xm,X_Dw_Xm,Zxj_Xmgx} from '../db.js'
-import {Ry,Ry_Xq,Zrj_MZ,Zrj_XB,Zrk_HYZK,Zrk_XL,Zrk_XW,Zrk_ZC,Zrk_ZZMM} from '../db.js'
+import {Ry,Ry_Xq,X_Ry_Dw,Zrj_MZ,Zrj_XB,Zrk_HYZK,Zrk_XL,Zrk_XW,Zrk_ZC,Zrk_ZZMM} from '../db.js'
 
 const Sequelize = require("sequelize");
 
@@ -41,14 +58,23 @@ function isContains(str, substr) {
 
   export default {
     name: 'main-page',
+    components: { DlgXmEdit },
     mounted() {
       this.loadTree()      
-
       this.loadAllXm("1")      
-
     },
    data () {
+    let data = []
+    for (let i = 0; i <= 360; i++) {
+        let t = i / 180 * Math.PI
+        let r = Math.sin(2 * t) * Math.cos(2 * t)
+        data.push([r, i])
+    }
+
       return {
+        showa:true,
+        showb:true,
+        showc:true,
         treeDataDw:[],
         tbDataXm:[],
         tbDataRy:[],
@@ -88,7 +114,16 @@ function isContains(str, substr) {
           key: 'JF',
           width:120,
           sortable: true
+          },{
+          title: '操作',
+          render: (h, params) => {
+          return h("DlgXmEdit",{attrs:{},on:{click:()=>{
+                }}},["Edit"]) 
           }
+          }
+
+
+          
         ],
         cols2:[{
           title: 'XM',
@@ -98,6 +133,11 @@ function isContains(str, substr) {
           },{
           title: 'SFZH',
           key: 'SFZH',
+          width:120,
+          sortable: true
+          },{
+          title: 'XB',
+          key: 'XB',
           width:120,
           sortable: true
         }],
@@ -113,7 +153,81 @@ function isContains(str, substr) {
           sortable: true
         }],
 
-            }
+        polar: {
+        title: {
+          text: '极坐标双数值轴'
+        },
+        legend: {
+          data: ['line']
+        },
+        polar: {
+          center: ['50%', '54%']
+        },
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'cross'
+          }
+        },
+        angleAxis: {
+          type: 'value',
+          startAngle: 0
+        },
+        radiusAxis: {
+          min: 0
+        },
+        series: [
+          {
+            coordinateSystem: 'polar',
+            name: 'line',
+            type: 'line',
+            showSymbol: false,
+            data: data
+          }
+        ],
+        animationDuration: 2000
+      },
+
+        option1:{
+          title: {
+              text: '十大高耗水行业用水量八减两增',    //标题
+              backgroundColor: '#ff0000',            //背景
+              subtext: '同比百分比(%)',               //子标题
+
+              textStyle: {
+                fontWeight: 'normal',              //标题颜色
+                color: '#408829'
+              },
+
+              x:"center"    
+            },
+
+                    tooltip: {
+                        show: true
+                    },
+                    legend: {
+                        data:['经费']
+                    },
+                    xAxis : [
+                        {
+                            type : 'category',
+                            data : ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"]
+                        }
+                    ],
+                    yAxis : [
+                        {
+                            type : 'value'
+                        }
+                    ],
+                    series : [
+                        {
+                            "name":"项目",
+                            "type":"bar",
+                            "data":[5, 20, 40, 10, 10, 20]
+                        }
+                    ]
+                }
+        }
         },
 
     methods: {
@@ -122,12 +236,19 @@ function isContains(str, substr) {
       },
       onTree(item)
       {
+        // this.showa=false
+        // this.showb=false
         this.loadAllXm(item[0].CCM)
-        this.loadRy()
+        this.loadRy(item[0].CCM)
+        // this.showa=true
+        // this.showb=true
       },
       loadTree()
       {
-        var _self = this; 
+          var _self = this; 
+
+          var ltStart=(new Date()).getTime()
+
           var root=[];
           var newdata=[]
           this.treeDataDw.push({title:"root",CCM:"",id:"",expand: true,children:[]})
@@ -148,24 +269,75 @@ function isContains(str, substr) {
               curdata=curdata.children[curdata.children.length-1]
               datatree.push(curdata)
             }
+
+            var ltEnd=(new Date()).getTime()
+            console.log("**************",ltEnd-ltStart,ltEnd,ltStart)
+
           })
       },
-      loadAllXm(root)
+      loadAllXm(rootCcm)
       {
         var _self = this; 
+        var xmStart=(new Date()).getTime()
+
         _self.tbDataXm.splice(0,_self.tbDataXm.length)
-        console.log("========111",root,_self.allDw)
-        for(var i=0;i<_self.allDw.length;i++){
-          console.log("==========11",root,_self.allDw[i].CCM)
-          if(isContains(_self.allDw[i].CCM,root))
-          {
-            console.log("==============",root,_self.allDw[i].CCM)
-            this.loadXm(_self.allDw[i].CCM)
-          }
+        _self.option1.xAxis[0].data=[]
+        _self.option1.series[0].data=[]
+
+        var curDw=_self.allDw.filter((e)=>{
+        return isContains(e.CCM,rootCcm)
+        })
+
+        var ccms=[]
+        for (var i=0;i<curDw.length;i++){
+          ccms.push(curDw[i].CCM)
         }
+
+         X_Dw_Xm.sync({force: false}).then(()=>{return X_Dw_Xm.findAll(
+            {
+                where: {
+                  DCCM: {in: ccms}
+                },
+                include: [
+                { model: Dw },
+                { model: Xm },
+                { model: Zxj_Xmgx }
+                ]
+            }
+          )}).then(aaa => { 
+
+            var xmEnd=(new Date()).getTime()
+            console.log("**********1****xm",xmEnd-xmStart,xmEnd,xmStart)
+            for(var j=0;j<aaa.length;j++)
+             {
+              var a=aaa[j].dataValues
+              var b=aaa[j].xm.dataValues
+              var c=aaa[j].dw.dataValues
+              var d=aaa[j].Zxj_Xmgx.dataValues
+               _self.tbDataXm.push({BH:a.XMBH,MC:b.MC,LX:b.LX,LY:b.LY,JF:b.JF,DW:c.MC,XMGX:d.XMGX})
+
+              _self.option1.xAxis[0].data.push(b.MC)
+              _self.option1.series[0].data.push(b.JF)
+             }
+            //  _self.showa=true
+          })
+
+        //console.log("======a==111111",root,_self.allDw,curDw)
+
+
+        // console.log("========111",root,_self.allDw)
+        // for(var i=0;i<_self.allDw.length;i++){
+        //   console.log("==========11",root,_self.allDw[i].CCM)
+        //   if(isContains(_self.allDw[i].CCM,root))
+        //   {
+        //     console.log("==============",root,_self.allDw[i].CCM)
+        //     this.loadXm(_self.allDw[i].CCM)
+        //   }
+        // }
       },
       loadXm(ccm)
       {
+          var xmStart=(new Date()).getTime()
           var _self = this; 
           X_Dw_Xm.sync({force: false}).then(()=>{return X_Dw_Xm.findAll(
             {
@@ -175,57 +347,71 @@ function isContains(str, substr) {
                 include: [
                 {
                     model: Dw,
-                    where: { CCM: Sequelize.col('X_Dw_Xm.DCCM') }
-                },
-                {
+                    // where: { CCM: Sequelize.col('X_Dw_Xm.DCCM') }
+                },{
                     model: Xm,
-                    where: { BH: Sequelize.col('X_Dw_Xm.XMBH') }
-                },
-                {
+                    // where: { BH: Sequelize.col('X_Dw_Xm.XMBH') }
+                },{
                     model: Zxj_Xmgx,
-                    where: { DM: Sequelize.col('X_Dw_Xm.XMGX') }
+                    // where: { DM: Sequelize.col('X_Dw_Xm.XMGX') }
                 }
                 ]
             }
-          )}).then(aaa => {
+          )}).then(aaa => { 
            // console.log("----------xm",aaa)
+
+            var xmEnd=(new Date()).getTime()
+            console.log("**************xm",xmEnd-xmStart,xmEnd,xmStart)
             for(var j=0;j<aaa.length;j++)
              {
               var a=aaa[j].dataValues
               var b=aaa[j].xm.dataValues
               var c=aaa[j].dw.dataValues
               var d=aaa[j].Zxj_Xmgx.dataValues
-              _self.tbDataXm.push({BH:a.XMBH,MC:b.MC,LX:b.LX,LY:b.LY,JF:b.JF,DW:c.MC,XMGX:d.XMGX})
+               _self.tbDataXm.push({BH:a.XMBH,MC:b.MC,LX:b.LX,LY:b.LY,JF:b.JF,DW:c.MC,XMGX:d.XMGX})
              }
+
+             _self.showa=true
           })
       },
-      loadRy(ccm){
+      loadRy(rootCcm){
           var _self = this;   
-          Ry.sync({force: false}).then(()=>{return Ry.findAll(
+          _self.tbDataRy.splice(0,_self.tbDataRy.length)
+
+        var curDw=_self.allDw.filter((e)=>{
+        return isContains(e.CCM,rootCcm)
+        })
+
+        var ccms=[]
+        for (var i=0;i<curDw.length;i++){
+          ccms.push(curDw[i].CCM)
+        }
+            console.log("----------ry1",rootCcm,ccms)
+          X_Ry_Dw.sync({force: false}).then(()=>{return X_Ry_Dw.findAll(
             {
                 where: {
+                  JJCCM: {in: ccms}
                 },
-                include: [
-                // {
-                //     model: Zrj_XB,
-                //     where: { DM: Sequelize.col('Ry.XB') }
-                // },
-                // {
-                //     model: Zrj_MZ,
-                //     where: { DM: Sequelize.col('Ry.MZ') }
-                // },
+                include:[
                 {
-                    model: Ry_Xq,
-                    where: { SFZH: Sequelize.col('Ry.SFZH') }
-                }
+                    model: Ry,
+                    include:[{all:true}],
+                },
+                 {all:true} ,
                 ]
             }
           )}).then(aaa => {
             console.log("----------ry",aaa)
             for(var j=0;j<aaa.length;j++)
              {
-              var a=aaa[j].dataValues
-              _self.tbDataRy.push(a)
+              var a=aaa[j].Ry.dataValues
+              _self.tbDataRy.push({
+                XM:a.XM,
+                SFZH:a.SFZH,
+                XB:a.Zrj_XB.XB,
+                 })
+
+              //_self.tbDataRy.push(a)
               // var b=aaa[j].xm.dataValues
               // var c=aaa[j].dw.dataValues
               // var d=aaa[j].Zxj_Xmgx.dataValues
@@ -235,7 +421,11 @@ function isContains(str, substr) {
       },
     }
   }
+
+
+
 </script>
+
 
 <style>
   @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');

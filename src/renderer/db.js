@@ -182,15 +182,15 @@ const Ry = mysql_db.define('Ry', {
     tableName: 't_Ry'
 });
 
-const Ry_Xq = mysql_db.define('Ry', {
+const Ry_Xq = mysql_db.define('Ry_Xq', {
     SFZH: {
         type: Sequelize.STRING(36),
         field: 'SFZH',
         primaryKey: true
     },
-    HXZK: {
+    HYZK: {
         type: Sequelize.STRING(36),
-        field: 'HXZK',
+        field: 'HYZK',
     },
     ZZMM: {
         type: Sequelize.STRING(36),
@@ -269,7 +269,7 @@ const Zrj_XB = mysql_db.define('Zrj_XB', {
         field: 'DM',
         primaryKey: true
     },
-    HYZK: {
+    XB: {
         type: Sequelize.STRING(36),
         field: 'XB',
     },
@@ -361,9 +361,10 @@ const Zrk_ZZMM = mysql_db.define('Zrk_ZZMM', {
 
 Ry.belongsTo(Zrj_XB,{foreignKey: 'XB', targetKey: 'DM'})
 Ry.belongsTo(Zrj_MZ,{foreignKey: 'MZ', targetKey: 'DM'})
+Ry.hasOne(Ry_Xq,{foreignKey: 'SFZH', targetKey: 'SFZH'})
 //Ry.belongsTo(Zrj_JG,{foreignKey: 'JG', targetKey: 'DM'})
 
-Ry.belongsTo(Ry_Xq,{foreignKey: 'SFZH', targetKey: 'SFZH'})
+// Ry.belongsTo(Ry_Xq,{foreignKey: 'SFZH', targetKey: 'SFZH'})
 //Ry_Xq.belongsTo(Ry,{foreignKey: 'SFZH', targetKey: 'SFZH'})
 
 Ry_Xq.belongsTo(Zrk_XL,{foreignKey: 'XL', targetKey: 'DM'})
@@ -373,6 +374,30 @@ Ry_Xq.belongsTo(Zrk_ZZMM,{foreignKey: 'ZZMM', targetKey: 'DM'})
 Ry_Xq.belongsTo(Zrk_HYZK,{foreignKey: 'HYZK', targetKey: 'DM'})
 
 
+
+const X_Ry_Dw = mysql_db.define('X_Ry_Dw', {
+    AUID: {
+        type: Sequelize.INTEGER,
+        field: 'AUID',
+        primaryKey: true
+    },
+    SFZH: {
+        type: Sequelize.STRING(36),
+        field: 'SFZH',
+    },
+    JJCCM: {
+        type: Sequelize.STRING(36),
+        field: 'JJCCM',
+    },
+}, {
+    timestamps: false,
+    freezeTableName: false, // Model tableName will be the same as the model name
+    tableName: 'X_Ry_Dw'
+});
+
+X_Ry_Dw.belongsTo(Ry,{foreignKey: 'SFZH', targetKey: 'SFZH'})
+X_Ry_Dw.belongsTo(Dw,{foreignKey: 'JJCCM', targetKey: 'CCM'})
+
 exports.Dw=Dw  
 exports.Xm=Xm
 exports.X_Dw_Xm=X_Dw_Xm
@@ -380,6 +405,8 @@ exports.Zxj_Xmgx=Zxj_Xmgx
 
 exports.Ry=Ry
 exports.Ry_Xq=Ry_Xq
+exports.X_Ry_Dw=X_Ry_Dw
+
 exports.Zrj_MZ=Zrj_MZ
 exports.Zrj_XB=Zrj_XB
 exports.Zrk_HYZK=Zrk_HYZK
