@@ -8,8 +8,12 @@
         <i-col span="20">
 
         <Tabs value="name1">
+            <TabPane label="概况" name="name0">
+              
+            </TabPane>
             <TabPane label="项目" name="name1">
-                <i-table v-if="showa" border stripe  :highlight-row="true" :columns="cols" :data="tbDataXm" ></i-table>
+                <v-pagination :total="pgXmLen" :current-page='pgXmCurrent' @pagechange="pagexmchange"></v-pagination>
+                <i-table v-if="showa" border stripe  :highlight-row="true" :columns="cols" :data="tbPageDataXm" ></i-table>
             </TabPane>
             <TabPane label="人员" name="name2">
                 <i-table  v-if="showb" border stripe  :highlight-row="true" :columns="cols2" :data="tbDataRy" ></i-table>
@@ -41,6 +45,8 @@ import 'echarts/lib/chart/line'
 import 'echarts/lib/chart/bar'
 import 'echarts/lib/component/tooltip'
 
+import pagination from './common/pagination'
+
 Vue.component('chart', ECharts)
 
 
@@ -58,10 +64,14 @@ function isContains(str, substr) {
 
   export default {
     name: 'main-page',
-    components: { DlgXmEdit },
+    components: { 
+      DlgXmEdit,
+      'v-pagination': pagination,
+    
+    },
     mounted() {
       this.loadTree()      
-      this.loadAllXm("1")      
+     // this.loadAllXm("1")      
     },
    data () {
     let data = []
@@ -72,6 +82,11 @@ function isContains(str, substr) {
     }
 
       return {
+        pgXmTotal: 150,     // 记录总条数
+        pgXmDisplay: 10,   // 每页显示条数
+        pgXmCurrent: 1,   // 当前的页数
+
+
         showa:true,
         showb:true,
         showc:true,
@@ -79,8 +94,18 @@ function isContains(str, substr) {
         tbDataXm:[],
         tbDataRy:[],
         tbDataZc:[],
+
+        tbPageDataXm:[],
+        tbPageDataRy:[],
+        tbPageDataZc:[],
+
         allDw:[],
         cols:[{
+          title: '序号',
+          key: 'SN',
+          width:80,
+          sortable: true
+          },{
           title: '单位',
           key: 'DW',
           width:120,
@@ -121,9 +146,6 @@ function isContains(str, substr) {
                 }}},["Edit"]) 
           }
           }
-
-
-          
         ],
         cols2:[{
           title: 'XM',
@@ -153,40 +175,40 @@ function isContains(str, substr) {
           sortable: true
         }],
 
-        polar: {
-        title: {
-          text: '极坐标双数值轴'
-        },
-        legend: {
-          data: ['line']
-        },
-        polar: {
-          center: ['50%', '54%']
-        },
-        tooltip: {
-          trigger: 'axis',
-          axisPointer: {
-            type: 'cross'
-          }
-        },
-        angleAxis: {
-          type: 'value',
-          startAngle: 0
-        },
-        radiusAxis: {
-          min: 0
-        },
-        series: [
-          {
-            coordinateSystem: 'polar',
-            name: 'line',
-            type: 'line',
-            showSymbol: false,
-            data: data
-          }
-        ],
-        animationDuration: 2000
-      },
+      //   polar: {
+      //   title: {
+      //     text: '极坐标双数值轴'
+      //   },
+      //   legend: {
+      //     data: ['line']
+      //   },
+      //   polar: {
+      //     center: ['50%', '54%']
+      //   },
+      //   tooltip: {
+      //     trigger: 'axis',
+      //     axisPointer: {
+      //       type: 'cross'
+      //     }
+      //   },
+      //   angleAxis: {
+      //     type: 'value',
+      //     startAngle: 0
+      //   },
+      //   radiusAxis: {
+      //     min: 0
+      //   },
+      //   series: [
+      //     {
+      //       coordinateSystem: 'polar',
+      //       name: 'line',
+      //       type: 'line',
+      //       showSymbol: false,
+      //       data: data
+      //     }
+      //   ],
+      //   animationDuration: 2000
+      // },
 
         option1:{
           title: {
@@ -230,16 +252,35 @@ function isContains(str, substr) {
         }
         },
 
+    computed: {
+        pgXmLen: function () {  return this.tbDataXm.length  },
+    },
+
     methods: {
+     pagexmchange:function(currentPage){
+       this.pgXmCurrent=currentPage;
+       
+       this.tbPageDataXm=this.tbDataXm.filter((e)=>{
+        return e.SN>(currentPage-1)*this.pgXmDisplay && e.SN<=(currentPage)*this.pgXmDisplay
+        })
+
+       console.log(currentPage);
+
+
+       // ajax请求, 向后台发送 currentPage, 来获取对应的数据
+     },
+
       open (link) {
         this.$electron.shell.openExternal(link)
       },
+
       onTree(item)
       {
         // this.showa=false
         // this.showb=false
         this.loadAllXm(item[0].CCM)
-        this.loadRy(item[0].CCM)
+        
+      //  this.loadRy(item[0].CCM)
         // this.showa=true
         // this.showb=true
       },
@@ -275,11 +316,13 @@ function isContains(str, substr) {
 
           })
       },
+
       loadAllXm(rootCcm)
       {
         var _self = this; 
         var xmStart=(new Date()).getTime()
-
+        
+        _self.pgXmCurrent=1
         _self.tbDataXm.splice(0,_self.tbDataXm.length)
         _self.option1.xAxis[0].data=[]
         _self.option1.series[0].data=[]
@@ -314,66 +357,57 @@ function isContains(str, substr) {
               var b=aaa[j].xm.dataValues
               var c=aaa[j].dw.dataValues
               var d=aaa[j].Zxj_Xmgx.dataValues
-               _self.tbDataXm.push({BH:a.XMBH,MC:b.MC,LX:b.LX,LY:b.LY,JF:b.JF,DW:c.MC,XMGX:d.XMGX})
+               _self.tbDataXm.push({SN:j+1,BH:a.XMBH,MC:b.MC,LX:b.LX,LY:b.LY,JF:b.JF,DW:c.MC,XMGX:d.XMGX})
 
               _self.option1.xAxis[0].data.push(b.MC)
               _self.option1.series[0].data.push(b.JF)
              }
+             
+            // _self.pgXmCurrent=1
+            _self.pagexmchange(1)
             //  _self.showa=true
           })
-
-        //console.log("======a==111111",root,_self.allDw,curDw)
-
-
-        // console.log("========111",root,_self.allDw)
-        // for(var i=0;i<_self.allDw.length;i++){
-        //   console.log("==========11",root,_self.allDw[i].CCM)
-        //   if(isContains(_self.allDw[i].CCM,root))
-        //   {
-        //     console.log("==============",root,_self.allDw[i].CCM)
-        //     this.loadXm(_self.allDw[i].CCM)
-        //   }
-        // }
       },
-      loadXm(ccm)
-      {
-          var xmStart=(new Date()).getTime()
-          var _self = this; 
-          X_Dw_Xm.sync({force: false}).then(()=>{return X_Dw_Xm.findAll(
-            {
-                where: {
-                  DCCM: ccm
-                },
-                include: [
-                {
-                    model: Dw,
-                    // where: { CCM: Sequelize.col('X_Dw_Xm.DCCM') }
-                },{
-                    model: Xm,
-                    // where: { BH: Sequelize.col('X_Dw_Xm.XMBH') }
-                },{
-                    model: Zxj_Xmgx,
-                    // where: { DM: Sequelize.col('X_Dw_Xm.XMGX') }
-                }
-                ]
-            }
-          )}).then(aaa => { 
-           // console.log("----------xm",aaa)
 
-            var xmEnd=(new Date()).getTime()
-            console.log("**************xm",xmEnd-xmStart,xmEnd,xmStart)
-            for(var j=0;j<aaa.length;j++)
-             {
-              var a=aaa[j].dataValues
-              var b=aaa[j].xm.dataValues
-              var c=aaa[j].dw.dataValues
-              var d=aaa[j].Zxj_Xmgx.dataValues
-               _self.tbDataXm.push({BH:a.XMBH,MC:b.MC,LX:b.LX,LY:b.LY,JF:b.JF,DW:c.MC,XMGX:d.XMGX})
-             }
+      // loadXm(ccm)
+      // {
+      //     var xmStart=(new Date()).getTime()
+      //     var _self = this; 
+      //     X_Dw_Xm.sync({force: false}).then(()=>{return X_Dw_Xm.findAll(
+      //       {
+      //           where: {
+      //             DCCM: ccm
+      //           },
+      //           include: [
+      //           {
+      //               model: Dw,
+      //               // where: { CCM: Sequelize.col('X_Dw_Xm.DCCM') }
+      //           },{
+      //               model: Xm,
+      //               // where: { BH: Sequelize.col('X_Dw_Xm.XMBH') }
+      //           },{
+      //               model: Zxj_Xmgx,
+      //               // where: { DM: Sequelize.col('X_Dw_Xm.XMGX') }
+      //           }
+      //           ]
+      //       }
+      //     )}).then(aaa => { 
+      //      // console.log("----------xm",aaa)
 
-             _self.showa=true
-          })
-      },
+      //       var xmEnd=(new Date()).getTime()
+      //       console.log("**************xm",xmEnd-xmStart,xmEnd,xmStart)
+      //       for(var j=0;j<aaa.length;j++)
+      //        {
+      //         var a=aaa[j].dataValues
+      //         var b=aaa[j].xm.dataValues
+      //         var c=aaa[j].dw.dataValues
+      //         var d=aaa[j].Zxj_Xmgx.dataValues
+      //          _self.tbDataXm.push({BH:a.XMBH,MC:b.MC,LX:b.LX,LY:b.LY,JF:b.JF,DW:c.MC,XMGX:d.XMGX})
+      //        }
+
+      //        _self.showa=true
+      //     })
+      // },
       loadRy(rootCcm){
           var _self = this;   
           _self.tbDataRy.splice(0,_self.tbDataRy.length)
