@@ -117,7 +117,7 @@ function isContains(str, substr) {
           },{
           title: '操作',
           render: (h, params) => {
-          return h("DlgXmEdit",{attrs:{},on:{click:()=>{
+          return h("DlgXmEdit",{props:{BH:params.row.BH},on:{click:()=>{
                 }}},["Edit"]) 
           }
           }

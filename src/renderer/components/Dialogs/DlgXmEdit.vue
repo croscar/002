@@ -1,17 +1,32 @@
 <template>
 <div>
-    <Button type="primary" @click="modal1 = true">aaa</Button>
+    <Button type="primary" @click="modal1 = true">编辑</Button>
         
     <Modal
         v-model="modal1"
-        title="Common Modal dialog box title"
+        title="项目信息"
         @on-ok="ok"
         @on-cancel="cancel">
     <Row>
         <i-col span="4">
-            {{MC}}
+
         </i-col>
         <i-col span="20">
+        <row>
+          项目编号：{{row.BH}}
+        </row>  
+        <row>
+          项目名称：<input v-model="row.MC">
+        </row>  
+        <row>
+          项目类型：<input v-model="row.LX">
+          <!-- <Select v-model="row.LX" style="width:200px">  </Select>
+                          <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option> -->
+          
+        </row>  
+        <row>
+          项目领域：<input v-model="row.LY">
+        </row>  
         </i-col>
     </Row>
 
@@ -31,11 +46,58 @@ function isContains(str, substr) {
 
   export default {
     name: 'DlgXmEdit',
-    mounted() {
+
+    props: {
+      BH: String
     },
-   data () {
+
+    mounted() {
+        var _self=this
+
+        Xm.sync({force: false}).then(()=>{return Xm.findOne(
+            {
+                where: {
+                  BH: _self.BH
+                },
+                include: [
+                // { model: Dw },
+                // { model: Xm },
+                // { model: Zxj_Xmgx }
+                ]
+            }
+          )}).then(aaa => { 
+
+              _self.MC=aaa.dataValues.MC
+              _self.LX=aaa.dataValues.LX
+              _self.LY=aaa.dataValues.LY  
+
+              _self.row=aaa
+
+            // var xmEnd=(new Date()).getTime()
+            // console.log("**********1****xm",xmEnd-xmStart,xmEnd,xmStart)
+            // for(var j=0;j<aaa.length;j++)
+            //  {
+            //   var a=aaa[j].dataValues
+            //   var b=aaa[j].xm.dataValues
+            //   var c=aaa[j].dw.dataValues
+            //   var d=aaa[j].Zxj_Xmgx.dataValues
+            //    _self.tbDataXm.push({BH:a.XMBH,MC:b.MC,LX:b.LX,LY:b.LY,JF:b.JF,DW:c.MC,XMGX:d.XMGX})
+
+            //   _self.option1.xAxis[0].data.push(b.MC)
+            //   _self.option1.series[0].data.push(b.JF)
+            //  }
+            //  _self.showa=true
+          })
+
+
+    },
+
+    data () {
       return {
+        row:{},
         MC:"MC",
+        LX:"LX",
+        LY:'LY',
         modal1:false,
         }
     },
@@ -45,10 +107,17 @@ function isContains(str, substr) {
         this.$electron.shell.openExternal(link)
       },
             ok () {
-                this.$Message.info('Clicked ok');
+              var _self=this
+
+              //  Xm.update(_self.row,{'where':{'BH':{eq:_self.row.BH}}})
+              console.log("**********2****xm",_self.row,_self.row.save)
+              _self.row.save().then(()=>{
+                this.$Message.info('save ok');
+              })
+
             },
             cancel () {
-                this.$Message.info('Clicked cancel');
+                this.$Message.info('edit cancel');
             }
     }
   }
